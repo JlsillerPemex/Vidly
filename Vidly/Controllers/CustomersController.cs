@@ -25,6 +25,11 @@ namespace Vidly.Controllers
             return View(customers);
         }
 
+        public ActionResult New()
+        {
+            return View();
+        }
+
         public ActionResult Details(int id)
         {
             var customer = _context.Customers.SingleOrDefault(c => c.Id == id);
@@ -33,7 +38,7 @@ namespace Vidly.Controllers
             {
                 return HttpNotFound();
             }
-                
+
             return View(customer);
         }
 
