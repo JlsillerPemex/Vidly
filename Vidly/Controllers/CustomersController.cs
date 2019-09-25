@@ -14,7 +14,6 @@ namespace Vidly.Controllers
         {
             _context = new ApplicationDbContext();
         }
-
         protected override void Dispose(bool disposing)
         {
             _context.Dispose();
@@ -29,19 +28,51 @@ namespace Vidly.Controllers
         public ActionResult New()
         {
             var membershipTypes = _context.MembershipTypes.ToList();
-            var viewModel = new NewCustomerViewModel
+            var viewModel = new CustomerFormViewModel
             {
                 MembershipTypes = membershipTypes,
 
             };
 
-            return View(viewModel);
+            return View("CustomerForm", viewModel);
             
         }
-        [HttpPost]
-        public ActionResult Create(Customer customer)
+
+        public ActionResult Edit(int id)
         {
-            _context.Customers.Add(customer);
+            var customer = _context.Customers.FirstOrDefault(x => x.Id == id);
+            if (customer == null)
+            {
+                return HttpNotFound();
+            }
+
+            var viewModel = new CustomerFormViewModel()
+            {
+                Customer = customer,
+                MembershipTypes = _context.MembershipTypes.ToList()
+            };
+
+            return View("CustomerForm", viewModel);
+
+        }
+
+        [HttpPost]
+        public ActionResult Save(Customer customer)
+        {
+
+            if (customer.Id == 0)
+            {
+                _context.Customers.Add(customer);
+            }
+            else
+            {
+                var customerInDb = _context.Customers.Single(x => x.Id == customer.Id);
+                customerInDb.Name = customer.Name;
+                customerInDb.BirthDate = customer.BirthDate;
+                customerInDb.MembershipTypeId = customer.MembershipTypeId;
+                customerInDb.IsSubscribedToNewsLetter = customer.IsSubscribedToNewsLetter;
+            }
+            
             _context.SaveChanges();
             return RedirectToAction("Index", "Customers");
         }
